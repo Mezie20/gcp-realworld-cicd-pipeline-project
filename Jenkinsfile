@@ -30,9 +30,9 @@ pipeline {
         stage('SonarQube Inspection') {
             steps {
                 sh  """mvn clean verify sonar:sonar \
-                        -Dsonar.projectKey=javawebapp \
-                        -Dsonar.host.url=http://10.162.0.16:9000 \
-                        -Dsonar.login=sqp_4f9eae6daf8ce37fda23102e2fc1e87a001645ef"""
+                        -Dsonar.projectKey=java-web-app-project \
+                        -Dsonar.host.url=http://10.128.0.35:9000 \
+                        -Dsonar.login=sqp_22304eee28ce905d733bd22f98944bbaa730d500"""
             }
         }
         stage("Upload Artifact To Nexus"){
@@ -46,4 +46,13 @@ pipeline {
             }
         }
     }
+    post {
+    always {
+        echo 'Slack Notifications.'
+        slackSend channel: '#collins-jenkins-ci-pipeline', //update and provide your channel name
+        color: COLOR_MAP[currentBuild.currentResult],
+        message: "*${currentBuild.currentResult}:* Job Name '${env.JOB_NAME}' build ${env.BUILD_NUMBER} \n Build Timestamp: ${env.BUILD_TIMESTAMP} \n Project Workspace: ${env.WORKSPACE} \n More info at: ${env.BUILD_URL}"
+
+    }
+  }
 }
